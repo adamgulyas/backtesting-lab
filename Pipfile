@@ -5,8 +5,15 @@ name = "pypi"
 
 [packages]
 streamlit = "*"
+plotly = "*"
+finta = "*"
+numpy = "*"
+pandas = "*"
+sklearn = "*"
+yfinance = "*"
+watchdog = "*"
 
 [dev-packages]
 
 [requires]
-python_version = "3.9"
+python_version = "3.8"

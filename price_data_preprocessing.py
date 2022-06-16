@@ -17,10 +17,11 @@ from sklearn.svm import SVC
 from sklearn.preprocessing import StandardScaler
 from pandas.tseries.offsets import DateOffset
 from sklearn.metrics import classification_report
+import streamlit as st
 
 
 # ### Declare Constants
-# 
+#
 # In the Streamlit app, the user will be able to choose time period as well as moving average windows, initial portfolio capital, and share size.
 
 # In[ ]:
@@ -55,7 +56,7 @@ end_date = dcb_end
 
 # Get price data from Yahoo! Finance for S&P 500, NASDAQ 100, and RUSSELL 2000
 ohlvc_df = yf.download(
-    '^GSPC ^NDX ^RUT', 
+    '^GSPC ^NDX ^RUT',
     start=dcb_start,
     end=cvd_end
 )
@@ -65,7 +66,7 @@ ohlvc_df.rename(
     columns={
         '^NDX': 'NASDAQ 100',
         '^RUT': 'RUSSELL 2000',
-        '^GSPC': 'SP 500', 
+        '^GSPC': 'SP 500',
     },
     inplace=True
 )
@@ -93,9 +94,9 @@ print(stocks)
 
 
 def get_under_over_signals(data=pd.DataFrame):
-    
+
     df = data.drop(
-        columns=['Open', 'Low', 'High', 'Volume'], 
+        columns=['Open', 'Low', 'High', 'Volume'],
         level=1,
         errors='ignore'
     )
@@ -120,7 +121,7 @@ def get_under_over_signals(data=pd.DataFrame):
 def get_dmac_signals(data=pd.DataFrame, short_window=short_window, long_window=long_window):
 
     df = data.drop(
-        columns=['Open', 'Low', 'High', 'Volume'], 
+        columns=['Open', 'Low', 'High', 'Volume'],
         level=1,
         errors='ignore'
     )
@@ -138,7 +139,7 @@ def get_dmac_signals(data=pd.DataFrame, short_window=short_window, long_window=l
         # Generate signals based on SMA crossovers
         df[stock, 'Signal'] = 0.0
         df[stock, 'Signal'][short_window:] = np.where(
-            df[stock, 'SMA Fast'][short_window:] < 
+            df[stock, 'SMA Fast'][short_window:] <
             df[stock, 'SMA Slow'][short_window:], 1.0, 0.0
         )
 
@@ -236,8 +237,8 @@ def plot_trades(data, stock='SP 500', title='Trades View'):
     )
 
     all_fig.update_layout(
-        width=1200, 
-        height=600, 
+        width=1200,
+        height=600,
         xaxis_title='Date',
         yaxis_title='Amount',
         title=title)
@@ -297,8 +298,8 @@ def plot_portfolio(data, stock='SP 500', title='Portfolio Performance'):
     )
 
     all_fig.update_layout(
-        width=1200, 
-        height=600, 
+        width=1200,
+        height=600,
         xaxis_title='Date',
         yaxis_title='Amount',
         title=title)
@@ -324,7 +325,7 @@ def plot_returns(data, stock='SP 500', title='Portfolio Returns'):
     # exit_markers.rename('Sell', inplace=True)
 
     price_sma_fig = px.line(df[[
-        'Actual Cumulative Returns', 
+        'Actual Cumulative Returns',
         'Algorithm Cumulative Returns'
     ]])
 
@@ -364,8 +365,8 @@ def plot_returns(data, stock='SP 500', title='Portfolio Returns'):
     # )
 
     all_fig.update_layout(
-        width=1200, 
-        height=600, 
+        width=1200,
+        height=600,
         xaxis_title='Date',
         yaxis_title='Amount',
         title=title)
@@ -393,14 +394,21 @@ dmac_ptf_df.head()
 
 # In[ ]:
 
-
-plot_trades(dmac_signals_df, 'RUSSELL 2000')
+st.title('Algorithmic Trading Lab')
+st.header('DMAC Strategy')
+st.write(plot_trades(dmac_signals_df, 'RUSSELL 2000'))
 
 
 # In[ ]:
 
 
-plot_portfolio(dmac_ptf_df)
+st.write(plot_portfolio(dmac_ptf_df))
+
+
+# In[ ]:
+
+
+st.write(plot_returns(dmac_ptf_df, 'NASDAQ 100'))
 
 
 # # SVM
@@ -435,7 +443,7 @@ def get_training_dates(df):
 def get_svm_signals(data=pd.DataFrame):
 
     df = data.copy()
-    
+
     training_start, training_end = get_training_dates(svm_features_df)
 
     signals_df = df[training_end:].copy()
@@ -487,7 +495,7 @@ def get_svm_signals(data=pd.DataFrame):
 
 
 svm_features_df = get_dmac_signals(ohlvc_df).dropna().drop(
-    columns=['Signal'], 
+    columns=['Signal'],
     level=1,
 )
 
@@ -497,8 +505,9 @@ svm_signals_df.head()
 
 # In[ ]:
 
+st.header('SVM Strategy')
 
-plot_trades(svm_signals_df, 'NASDAQ 100')
+st.write(plot_trades(svm_signals_df, 'NASDAQ 100'))
 
 
 # In[ ]:
@@ -511,11 +520,11 @@ svm_ptf_df.head()
 # In[ ]:
 
 
-plot_portfolio(svm_ptf_df, 'NASDAQ 100')
+st.write(plot_portfolio(svm_ptf_df, 'NASDAQ 100'))
 
 
 # In[ ]:
 
 
-plot_returns(svm_ptf_df, 'NASDAQ 100')
+st.write(plot_returns(svm_ptf_df, 'NASDAQ 100'))
 
