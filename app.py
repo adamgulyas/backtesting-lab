@@ -71,7 +71,7 @@ with option_select:
             )
         # st.write('You Selected:',date)
 
-    with option_select_2:
+   # with option_select_2:
         col4, col5 = st.columns(2)
 
         with col4:
