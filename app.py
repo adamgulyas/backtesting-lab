@@ -50,7 +50,7 @@ with header:
     st.write('This web application is designed to help retail stock traders and investors determine if they should buy or sell a stock using news sentiment analysis and technical stock trading analysis. If you wish to learn more about our methodology, please visit the methodology tab')
 
 with option_select:
-    st.subheader('Select Your Features')
+    with st.form('Select Your Features'):
     col1, col2, col3 = st.columns(3)
 
     with col1:
@@ -88,6 +88,8 @@ with option_select:
             max_value=10000000
         )
 
+    submitted = st.form_submit_button('Run My Algorithm')
+    
 with option_select_dmac:
     col6, col7, col8 = st.columns(3)
 
