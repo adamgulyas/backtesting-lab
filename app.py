@@ -1,0 +1,461 @@
+#!/usr/bin/env python
+# coding: utf-8
+
+# Import dependencies
+import joblib
+import numpy as np
+import pandas as pd
+import plotly.graph_objects as go
+import plotly.express as px
+import streamlit as st
+from pandas.tseries.offsets import DateOffset
+from sklearn.svm import LinearSVC
+from sklearn.preprocessing import StandardScaler
+from sklearn.metrics import classification_report
+from finta import TA
+
+header = st.container()
+option_select = st.container()
+option_select_dmac = st.container()
+run = st.container()
+program = st.container()
+results = st.container()
+
+#with st.sidebar:
+#    st.sidebar.button('Analysis Tool')
+#    st.sidebar.button('Methodology')
+
+with header:
+    st.title('Technical and Sentiment Stock Trading Algorithm')
+    st.write('This web application is designed to help retail stock traders and investors determine if they should buy or sell a stock using news sentiment analysis and technical stock trading analysis. If you wish to learn more about our methodology, please visit the methodology tab')
+
+with option_select:
+    st.subheader('Select Your Features')
+    col1, col2, col3 = st.columns(3)
+
+    with col1:
+        option = st.selectbox(
+        'Select your trading strategy',
+        ('MACD','SVM'))
+
+    with col2:
+        stock = st.selectbox(
+        'Select your stock market index',
+        ('S&P 500','NASDAQ 100','RUSSELL 2000'))
+
+    with col3:
+        date = st.selectbox('Time Period',('Dot-com Bubble','2008 Crash','Covid'))
+        # st.write('You Selected:',date)
+
+with option_select:
+    col4, col5 = st.columns(2)
+
+    with col4:
+        initial_capital = st.number_input(
+            label='Initial Capital',
+            value=10000,
+            step=1000,
+            min_value=1000,
+            max_value=1000000000,
+        )
+
+    with col5:
+        share_size = st.number_input(
+            label='Share Size',
+            value=500,
+            step=1000,
+            min_value=100,
+            max_value=10000000
+        )
+
+with option_select_dmac:
+    col6, col7, col8 = st.columns(3)
+
+    with col6:
+        st.write("Fast SMA Window")
+        fast_window = st.slider('Slow SMA',0,60,4) #min: 0, max:60, def:4
+
+    with col7:
+        st.write('Slow SMA Window')
+        slow_window = st.slider('Days',0,180,100) #min: 0, max:180, def:100
+
+    with col8:
+        is_nlp = st.checkbox('NY Times Sentiment Analysis')
+        if is_nlp:
+            st.write('Sentiment analysis has been added.')
+
+
+#with run:
+  #  if st.button('Run My Trading Algoritm'):
+
+# Import data
+market_data_df = pd.read_csv('data/markets_ohlc.csv', header=[0,1], index_col=0)
+
+# Import trained models
+svm_SP500 = joblib.load('models/linear_svm_S&P 500.pkl')
+svm_NASDAQ100 = joblib.load('models/linear_svm_NASDAQ 100.pkl')
+svm_RUSSELL2000 = joblib.load('models/linear_svm_RUSSELL 2000.pkl')
+
+# Declare Constants
+# dcb = Dot Com Bubble
+dcb_start = '1997-06-01'
+dcb_end = '2002-12-01'
+
+# crsh = 2008 Crash
+crsh_start = '2007-06-01'
+crsh_end = '2012-12-01'
+
+# cvd = COVID-19
+cvd_start = '2020-03-01'
+cvd_end = '2022-06-01'
+
+initial_capital = 100000.0
+share_size = 100
+start_date = dcb_start
+end_date = dcb_end
+# stock = 'S&P 500'
+ohlc_df = market_data_df[stock]
+
+# Helper functions
+
+@st.cache
+def get_ohlc_data(df=ohlc_df, start=dcb_start, end=dcb_end):
+    """
+    Takes a single dimension OHLC dataframe and returns a copy of it within the
+    boundaries of start and end.
+    """
+    return df[start:end].copy()
+
+
+# Signal functions
+
+@st.cache
+def get_under_over_signals(data=ohlc_df):
+    """
+    Create a signal based on the current day's closing price being higher or
+    lower than yesterdays.
+
+    Returns a date-indexed single column dataframe of the signal.
+    """
+    df = data.copy()
+
+    df['Actual Returns'] = df['Close'].pct_change()
+
+    df['Signal'] = 0.0
+    df['Signal'] = np.where(
+        (df['Actual Returns'] >= 0), 1.0, 0.0
+    )
+
+    df = df.drop(
+        columns=['Close', 'Open', 'Low', 'High', 'Actual Returns']
+    )
+    df = df.dropna().sort_index(axis='columns')
+
+    return df
+
+
+@st.cache
+def get_fast_slow_sma(data=ohlc_df, fast_window=fast_window, slow_window=slow_window):
+    """
+    Create a signal based on the current day's closing price being higher or
+    lower than yesterdays.
+
+    Returns a date-indexed dataframe with SMA Fast, and SMA Slow columns
+    """
+
+    df = data.drop(columns=['Open', 'Low', 'High'])
+
+    # Generate the fast and slow simple moving averages
+    df['SMA Fast'] = (
+        df['Close'].rolling(window=fast_window).mean()
+    )
+    df['SMA Slow'] = (
+        df['Close'].rolling(window=slow_window).mean()
+    )
+
+    # Sort the index
+    df = df.drop(columns='Close').dropna().sort_index(axis='columns')
+
+    return df
+
+
+@st.cache
+def get_dmac_signals(data=ohlc_df, fast_window=fast_window, slow_window=slow_window):
+    """
+    Create a signal based on the current day's closing price being higher or
+    lower than yesterdays.
+
+    Returns a date-indexed dataframe with SMA Fast, and SMA Slow columns
+    """
+
+    df = data.drop(columns=['Open', 'Low', 'High'])
+
+    # Generate the fast and slow simple moving averages
+    df['SMA Fast'] = (
+        df['Close'].rolling(window=fast_window).mean()
+    )
+    df['SMA Slow'] = (
+        df['Close'].rolling(window=slow_window).mean()
+    )
+
+    # Generate signals based on SMA crossovers
+    df['Signal'] = 0.0
+    df['Signal'][fast_window:] = np.where(
+        df['SMA Fast'][fast_window:] >
+        df['SMA Slow'][fast_window:], 1.0, 0.0
+    )
+
+    # Sort the index
+    df = df.drop(columns='Close').dropna().sort_index(axis='columns')
+
+    return df
+
+
+@st.cache
+def get_svm_signals(start=dcb_start, end=dcb_end, stock=stock):
+    """
+    Get predicted trading signals from a Linear Support Vector Classifier
+    Models are saved in the data directory as pickle files
+    """
+
+    if stock == 'S&P 500':         model = svm_SP500
+    elif stock == 'NASDAQ 100':   model = svm_NASDAQ100
+    elif stock == 'RUSSELL 2000': model = svm_RUSSELL2000
+
+    # Get the appropriate feature set
+    X_data = get_ohlc_data(start=dcb_start, end=dcb_end)
+    X = get_fast_slow_sma(X_data)
+
+    X_sc = StandardScaler().fit_transform(X)
+
+    # Use the feature set to predict the target
+    y_pred = model.predict(X_sc)
+
+    # get the boundary datestrings of X's date-index
+    X_start = X.iloc[0].name
+    X_end = X.iloc[-1].name
+
+    # Get the y_true values corresponding to the predicted set
+    y_true = get_under_over_signals(X_data[X_start:X_end]).values
+    y_true = np.ravel(y_true)
+
+    df = pd.DataFrame({
+        'Signal': y_pred,
+        'Close': X_data[X_start:X_end]['Close']
+    }, index=X.index)
+
+    return df
+
+
+# Portfolio calculation function
+
+@st.cache
+def calculate_portfolio(data=pd.DataFrame, initial_capital=initial_capital, share_size=share_size):
+    """
+    Calculates a running portfolio. The last row is the final result.
+    Required Input: Dataframe with 'Signal' and 'Close' columns
+    """
+
+    df = data.copy()
+
+    initial_capital = float(initial_capital)
+
+    df['Position'] = share_size * df['Signal']
+    df['Entry/Exit Position'] = df['Position'].diff()
+    df['Holdings'] = df['Close'] * df['Position']
+    df['Cash'] = (
+        initial_capital - (df['Close'] * df['Entry/Exit Position']).cumsum()
+    )
+    df['Portfolio Total'] = df['Cash'] + df['Holdings']
+    df['Actual Returns'] = df['Close'].pct_change()
+    df['Actual Cumulative Returns'] = (
+        1 + df['Actual Returns']
+    ).cumprod() - 1
+    df['Algorithm Returns'] = df['Actual Returns'] * df['Signal']
+    df['Algorithm Cumulative Returns'] = (
+        1 + df['Algorithm Returns']
+    ).cumprod() - 1
+
+    df = df.dropna().sort_index(axis='columns')
+
+    return df
+
+
+
+# Plotting functions
+
+@st.cache
+def get_entries_fig(entries=pd.DataFrame):
+
+    entries_fig = px.scatter(entries)
+    entries_fig.update_traces(
+        marker=dict(
+            symbol='triangle-up',
+            color='green',
+            size=15,
+            line=dict(
+                    width=1,
+                    color='black'
+                ),
+            ),
+        selector=dict(mode='markers')
+    )
+
+    return entries_fig
+
+
+@st.cache
+def get_exits_fig(exits=pd.DataFrame):
+
+    exits_fig = px.scatter(exits)
+    exits_fig.update_traces(
+        marker=dict(
+            symbol='triangle-down',
+            color='red',
+            size=15,
+            line=dict(
+                    width=1,
+                    color='black'
+                ),
+            ),
+        selector=dict(mode='markers')
+    )
+
+    return exits_fig
+
+
+@st.cache
+def plot_trades(data=pd.DataFrame, stock=stock, title='Trades View'):
+
+    df = data.copy()
+
+    df['Entry/Exit'] = df['Signal'].diff()
+
+    entries = df[df['Entry/Exit'] == 1.0]['Close']
+    entries.rename('Buy', inplace=True)
+
+    entries_fig = get_entries_fig(entries)
+
+    exits = df[df['Entry/Exit'] == -1.0]['Close']
+    exits.rename('Sell', inplace=True)
+
+    exits_fig = get_exits_fig(exits)
+
+    df = df.drop(columns=['Signal', 'Entry/Exit'])
+
+    price_sma_fig = px.line(df)
+
+    all_figs = go.Figure(
+        data=price_sma_fig.data + entries_fig.data + exits_fig.data
+    )
+
+    all_figs.update_layout(
+        width=1200,
+        height=600,
+        xaxis_title='Date',
+        yaxis_title='Amount',
+        title=title
+    )
+
+    return all_figs
+
+
+@st.cache
+def plot_portfolio(data=pd.DataFrame, title='Portfolio Performance'):
+
+    df = data.copy()
+
+    df['Entry/Exit'] = df['Signal'].diff()
+
+    entries = df[df['Entry/Exit'] == 1.0]['Portfolio Total']
+    entries.rename('Buy', inplace=True)
+
+    entries_fig = get_entries_fig(entries)
+
+    exits = df[df['Entry/Exit'] == -1.0]['Portfolio Total']
+    exits.rename('Sell', inplace=True)
+
+    exits_fig = get_exits_fig(exits)
+
+    price_sma_fig = px.line(df[['Portfolio Total']])
+
+    all_fig = go.Figure(
+        data=price_sma_fig.data + entries_fig.data + exits_fig.data
+    )
+
+    all_fig.update_layout(
+        width=1200,
+        height=600,
+        xaxis_title='Date',
+        yaxis_title='Amount',
+        title=title)
+
+    return all_fig
+
+
+@st.cache
+def plot_returns(data=pd.DataFrame, title='Portfolio Returns'):
+    """
+    Plots algorithmic cumulative returns and buy & hold cumulative returns
+    Input data must be a df made by `calculate_portfolio()`
+    """
+
+    df = data.copy()
+
+    returns_fig = px.line(
+        df[['Actual Cumulative Returns', 'Algorithm Cumulative Returns']]
+    )
+
+    all_fig = go.Figure(
+        data=returns_fig.data
+    )
+
+    all_fig.update_layout(
+        width=1200,
+        height=600,
+        xaxis_title='Date',
+        yaxis_title='Amount',
+        title=title)
+
+    return all_fig
+
+
+
+#------------------------------------------------------------------------------
+
+
+
+
+with program:
+
+    svm_signals = get_svm_signals(start=dcb_start, end=dcb_end, stock=stock)
+    svm_ptf = calculate_portfolio(svm_signals)
+
+
+    plot_trades(svm_signals)
+    plot_portfolio(svm_ptf)
+
+
+    plot_returns(svm_ptf)
+
+
+with results:
+    st.header('Trading Algorithm Results')
+    col6, col7, col8, col9 = st.columns(4)
+
+    with col6:
+              st.write('Cumulative Return')
+              st.write("")
+    with col7:
+              st.write('Volatility')
+              st.write("")
+    with col8:
+              st.write('Sharpe Ratio')
+              st.write('')
+    with col9:
+              st.write('Sortino Ratio')
+              st.write('')
+
+
+
+
