@@ -15,6 +15,13 @@ from sklearn.preprocessing import StandardScaler
 from sklearn.metrics import classification_report
 from finta import TA
 
+#Page Configuration
+st.set_page_config(
+    layout='wide',
+    page_icon=':random:',
+    
+)
+
 # Import data
 market_data_df = pd.read_csv('data/markets_ohlc.csv', header=[0,1], index_col=0)
 

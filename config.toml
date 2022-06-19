@@ -1,0 +1,7 @@
+# This sets the page to dark mode
+[theme]
+primaryColor="#F63366"
+backgroundColor="#28282B"
+secondaryBackgroundColor="#F0F2F6"
+textColor="#262730"
+font="sans serif"
