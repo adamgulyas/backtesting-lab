@@ -441,9 +441,9 @@ with program:
             share_size=share_size,
         )
 
-    st.write(plot_returns(portfolio))
     st.write(plot_portfolio(portfolio))
     st.write(plot_trades(signals))
+    st.write(plot_returns(portfolio))
 
 
 with results:
