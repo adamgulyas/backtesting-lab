@@ -19,10 +19,6 @@ with nlp:
     st.header('Natural Language Processing')
     st.write('You could study techincal stock trading charts for years and still get blind-sided by news that takes the market for a ride (downward). This is where Natural Language Processing (NLP) comes in. Whenever a New York Times (NYT) article is posted, our algorithm will read the article and determine if it has a positive or negative sentiment which could impact the trend of the stock market. In the case that great or terrible news comes out, our algorithm will tell you how we think the market will move based on that data.')
     st.write('We utilized the NYT API to collect the news articles and an NLP technology called Vader to determine the sentiment of each article. After we determined the sentiment of each article on each day, we used classification to see how it impacts the stock price')
-    st.subheader('NYT Sentiment')
-    st.write('Each date in the below dataframe represents one new article we analyzed for sentiment. A 1 represents a positive sentiment and a 0 represents a negative sentiment')
-    
-    nlp_signals.head()
     
 with technical_analysis:
     st.header('Technical Analysis')
