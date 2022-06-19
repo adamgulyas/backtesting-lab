@@ -21,7 +21,7 @@ with nlp:
     st.write('We utilized the NYT API to collect the news articles and an NLP technology called Vader to determine the sentiment of each article. After we determined the sentiment of each article on each day, we used classification to see how it impacts the stock price')
     st.subheader('NYT Sentiment')
     st.write('Each date in the below dataframe represents one new article we analyzed for sentiment. A 1 represents a positive sentiment and a 0 represents a negative sentiment')
-    sentiment_df = pd.read_csv('Sentiment_Signals/simple_cvd_signal.csv')
+    sentiment_df = pd.read_csv('svm_signals.csv')
     sentiment_df
     
 with technical_analysis:
@@ -34,5 +34,5 @@ with svm:
     st.write('By combining the information that we collect through NLP and technical analysis, we can hopefully determine what direction the stock is trading, whether it is moving erratically, and what the general sentiment of the particular investment vehicle may be.')
     st.subheader('SVM Model')
     st.write('See the below columns that our machine learning model was trained on')
-    svm_df = pd.read_csv('svm_signals.csv')
+    svm_df = pd.read_csv('')
     svm_df
