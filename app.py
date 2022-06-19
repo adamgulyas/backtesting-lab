@@ -51,44 +51,44 @@ with header:
 
 with option_select:
     with st.form('Select Your Features'):
-    col1, col2, col3 = st.columns(3)
+        col1, col2, col3 = st.columns(3)
 
-    with col1:
-        trading_strategy = st.selectbox(
-        'Trading Strategy',
-        ('DMAC','Linear SVM'))
+        with col1:
+            trading_strategy = st.selectbox(
+            'Trading Strategy',
+            ('DMAC','Linear SVM'))
 
-    with col2:
-        stock = st.selectbox(
-        'Stock Market Index',
-        ('S&P 500','NASDAQ 100','RUSSELL 2000'))
+        with col2:
+            stock = st.selectbox(
+            'Stock Market Index',
+            ('S&P 500','NASDAQ 100','RUSSELL 2000'))
 
-    with col3:
+        with col3:
         time_period = st.selectbox('Time Period',('Dot-com Bubble','2008 Crash','Covid'))
         # st.write('You Selected:',date)
 
-with option_select:
-    col4, col5 = st.columns(2)
+    with option_select:
+        col4, col5 = st.columns(2)
 
-    with col4:
-        initial_capital = st.number_input(
-            label='Initial Capital',
-            value=10000,
-            step=1000,
-            min_value=1000,
-            max_value=1000000000,
-        )
+        with col4:
+            initial_capital = st.number_input(
+                label='Initial Capital',
+                value=10000,
+                step=1000,
+                min_value=1000,
+                max_value=1000000000,
+            )
 
-    with col5:
-        share_size = st.number_input(
-            label='Share Size',
-            value=500,
-            step=1000,
-            min_value=100,
-            max_value=10000000
-        )
+        with col5:
+            share_size = st.number_input(
+                label='Share Size',
+                value=500,
+                step=1000,
+                min_value=100,
+                max_value=10000000
+            )
 
-    submitted = st.form_submit_button('Run My Algorithm')
+        submitted = st.form_submit_button('Run My Algorithm')
     
 with option_select_dmac:
     col6, col7, col8 = st.columns(3)
