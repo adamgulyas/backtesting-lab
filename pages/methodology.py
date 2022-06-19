@@ -29,6 +29,6 @@ with svm:
     st.header('Putting It All Together')
     st.write('By combining the information that we collect through NLP and technical analysis, we can hopefully determine what direction the stock is trading, whether it is moving erratically, and what the general sentiment of the particular investment vehicle may be.')
     st.subheader('SVM Model')
-    st.write('See the below columns that our machine learning model was trained on')
-    svm_df = pd.read_csv('')
-    svm_df
+    st.write('Finally, we trained a Linear Support Vector Machine to better determine when to buy and sell the stock by looking at all the variables and determine what combination of variables define a buying or selling signal to maximize profits.')
+    st.subheader('Whats next?')
+    st.write('With just two weeks of research and coding going into this model, it is understandable that it is not perfect. Ideally we would be able to outperform the market in each of the bear and volatile markets we have chosen. To improve, we will have to fine tune our model. We would also like to test this model on any stock at any given point in time.
