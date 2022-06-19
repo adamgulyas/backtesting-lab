@@ -31,4 +31,4 @@ with svm:
     st.subheader('SVM Model')
     st.write('Finally, we trained a Linear Support Vector Machine to better determine when to buy and sell the stock by looking at all the variables and determine what combination of variables define a buying or selling signal to maximize profits.')
     st.subheader('Whats next?')
-    st.write('With just two weeks of research and coding going into this model, it is understandable that it is not perfect. Ideally we would be able to outperform the market in each of the bear and volatile markets we have chosen. To improve, we will have to fine tune our model. We would also like to test this model on any stock at any given point in time.
+    st.write('With just two weeks of research and coding going into this model, it is understandable that it is not perfect. Ideally we would be able to outperform the market in each of the bear and volatile markets we have chosen. To improve, we will have to fine tune our model. We would also like to test this model on any stock at any given point in time.')
