@@ -1,7 +1,8 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# Import dependencies
+# Import dependenciess
+from signal import signal
 import joblib
 import numpy as np
 import pandas as pd
@@ -14,6 +15,15 @@ from sklearn.preprocessing import StandardScaler
 from sklearn.metrics import classification_report
 from finta import TA
 
+# Import data
+market_data_df = pd.read_csv('data/markets_ohlc.csv', header=[0,1], index_col=0)
+
+# Import trained models
+svm_SP500 = joblib.load('models/linear_svm_S&P 500.pkl')
+svm_NASDAQ100 = joblib.load('models/linear_svm_NASDAQ 100.pkl')
+svm_RUSSELL2000 = joblib.load('models/linear_svm_RUSSELL 2000.pkl')
+
+# Declare Streamlit containers
 header = st.container()
 option_select = st.container()
 option_select_dmac = st.container()
@@ -34,17 +44,17 @@ with option_select:
     col1, col2, col3 = st.columns(3)
 
     with col1:
-        option = st.selectbox(
-        'Select your trading strategy',
-        ('MACD','SVM'))
+        trading_strategy = st.selectbox(
+        'Trading Strategy',
+        ('DMAC','Linear SVM'))
 
     with col2:
         stock = st.selectbox(
-        'Select your stock market index',
+        'Stock Market Index',
         ('S&P 500','NASDAQ 100','RUSSELL 2000'))
 
     with col3:
-        date = st.selectbox('Time Period',('Dot-com Bubble','2008 Crash','Covid'))
+        time_period = st.selectbox('Time Period',('Dot-com Bubble','2008 Crash','Covid'))
         # st.write('You Selected:',date)
 
 with option_select:
@@ -72,65 +82,51 @@ with option_select_dmac:
     col6, col7, col8 = st.columns(3)
 
     with col6:
-        st.write("Fast SMA Window")
-        fast_window = st.slider('Slow SMA',0,60,4) #min: 0, max:60, def:4
+        # st.write("Fast SMA Window")
+        fast_window = st.slider('Fast SMA Window',0,60,4) #min: 0, max:60, def:4
 
     with col7:
-        st.write('Slow SMA Window')
-        slow_window = st.slider('Days',0,180,100) #min: 0, max:180, def:100
+        # st.write('Slow SMA Window')
+        slow_window = st.slider('Slow SMA Window',0,180,100) #min: 0, max:180, def:100
 
     with col8:
         is_nlp = st.checkbox('NY Times Sentiment Analysis')
-        if is_nlp:
-            st.write('Sentiment analysis has been added.')
 
 
 #with run:
   #  if st.button('Run My Trading Algoritm'):
 
-# Import data
-market_data_df = pd.read_csv('data/markets_ohlc.csv', header=[0,1], index_col=0)
-
-# Import trained models
-svm_SP500 = joblib.load('models/linear_svm_S&P 500.pkl')
-svm_NASDAQ100 = joblib.load('models/linear_svm_NASDAQ 100.pkl')
-svm_RUSSELL2000 = joblib.load('models/linear_svm_RUSSELL 2000.pkl')
-
-# Declare Constants
-# dcb = Dot Com Bubble
-dcb_start = '1997-06-01'
-dcb_end = '2002-12-01'
-
-# crsh = 2008 Crash
-crsh_start = '2007-06-01'
-crsh_end = '2012-12-01'
-
-# cvd = COVID-19
-cvd_start = '2020-03-01'
-cvd_end = '2022-06-01'
-
-initial_capital = 100000.0
-share_size = 100
-start_date = dcb_start
-end_date = dcb_end
-# stock = 'S&P 500'
+initial_capital = float(initial_capital)
+share_size = int(share_size)
 ohlc_df = market_data_df[stock]
+
+if time_period == 'Dot-com Bubble':
+    start_date = '1997-06-01'
+    end_date = '2002-12-01'
+elif time_period == '2008 Crash':
+    start_date = '2007-06-01'
+    end_date = '2012-12-01'
+elif time_period == 'Covid':
+    start_date = '2020-03-01'
+    end_date = '2022-06-01'
+
+ohlc_df = ohlc_df[start_date:end_date].copy()
 
 # Helper functions
 
 @st.cache
-def get_ohlc_data(df=ohlc_df, start=dcb_start, end=dcb_end):
+def get_ohlc_data(data=pd.DataFrame, start=str, end=str):
     """
     Takes a single dimension OHLC dataframe and returns a copy of it within the
     boundaries of start and end.
     """
-    return df[start:end].copy()
+    return data[start:end].copy()
 
 
 # Signal functions
 
 @st.cache
-def get_under_over_signals(data=ohlc_df):
+def get_under_over_signals(data=pd.DataFrame):
     """
     Create a signal based on the current day's closing price being higher or
     lower than yesterdays.
@@ -155,7 +151,7 @@ def get_under_over_signals(data=ohlc_df):
 
 
 @st.cache
-def get_fast_slow_sma(data=ohlc_df, fast_window=fast_window, slow_window=slow_window):
+def get_fast_slow_sma(data=pd.DataFrame, fast_window=4, slow_window=100):
     """
     Create a signal based on the current day's closing price being higher or
     lower than yesterdays.
@@ -180,7 +176,7 @@ def get_fast_slow_sma(data=ohlc_df, fast_window=fast_window, slow_window=slow_wi
 
 
 @st.cache
-def get_dmac_signals(data=ohlc_df, fast_window=fast_window, slow_window=slow_window):
+def get_dmac_signals(data=pd.DataFrame, fast_window=4, slow_window=100):
     """
     Create a signal based on the current day's closing price being higher or
     lower than yesterdays.
@@ -206,25 +202,26 @@ def get_dmac_signals(data=ohlc_df, fast_window=fast_window, slow_window=slow_win
     )
 
     # Sort the index
-    df = df.drop(columns='Close').dropna().sort_index(axis='columns')
+    df = df.dropna().sort_index(axis='columns')
 
     return df
 
 
 @st.cache
-def get_svm_signals(start=dcb_start, end=dcb_end, stock=stock):
+def get_svm_signals(data=pd.DataFrame, start=str, end=str, stock=stock):
     """
     Get predicted trading signals from a Linear Support Vector Classifier
+    `stock` needs to be passed in so we know which model to use
     Models are saved in the data directory as pickle files
     """
 
-    if stock == 'S&P 500':         model = svm_SP500
+    if stock == 'S&P 500':        model = svm_SP500
     elif stock == 'NASDAQ 100':   model = svm_NASDAQ100
     elif stock == 'RUSSELL 2000': model = svm_RUSSELL2000
 
     # Get the appropriate feature set
-    X_data = get_ohlc_data(start=dcb_start, end=dcb_end)
-    X = get_fast_slow_sma(X_data)
+    X_data = get_ohlc_data(data, start=start, end=end)
+    X = get_fast_slow_sma(X_data, fast_window=fast_window, slow_window=slow_window)
 
     X_sc = StandardScaler().fit_transform(X)
 
@@ -250,7 +247,7 @@ def get_svm_signals(start=dcb_start, end=dcb_end, stock=stock):
 # Portfolio calculation function
 
 @st.cache
-def calculate_portfolio(data=pd.DataFrame, initial_capital=initial_capital, share_size=share_size):
+def calculate_portfolio(data=pd.DataFrame, initial_capital=10000, share_size=500):
     """
     Calculates a running portfolio. The last row is the final result.
     Required Input: Dataframe with 'Signal' and 'Close' columns
@@ -350,8 +347,8 @@ def plot_trades(data=pd.DataFrame, stock=stock, title='Trades View'):
     )
 
     all_figs.update_layout(
-        width=1200,
-        height=600,
+        # width=1200,
+        # height=600,
         xaxis_title='Date',
         yaxis_title='Amount',
         title=title
@@ -384,8 +381,8 @@ def plot_portfolio(data=pd.DataFrame, title='Portfolio Performance'):
     )
 
     all_fig.update_layout(
-        width=1200,
-        height=600,
+        # width=1200,
+        # height=600,
         xaxis_title='Date',
         yaxis_title='Amount',
         title=title)
@@ -411,8 +408,8 @@ def plot_returns(data=pd.DataFrame, title='Portfolio Returns'):
     )
 
     all_fig.update_layout(
-        width=1200,
-        height=600,
+        # width=1200,
+        # height=600,
         xaxis_title='Date',
         yaxis_title='Amount',
         title=title)
@@ -428,15 +425,25 @@ def plot_returns(data=pd.DataFrame, title='Portfolio Returns'):
 
 with program:
 
-    svm_signals = get_svm_signals(start=dcb_start, end=dcb_end, stock=stock)
-    svm_ptf = calculate_portfolio(svm_signals)
+    if trading_strategy == 'DMAC':
+        signals = get_dmac_signals(ohlc_df, fast_window=fast_window, slow_window=slow_window)
+        portfolio = calculate_portfolio(
+            signals,
+            initial_capital=initial_capital,
+            share_size=share_size,
+        )
 
+    elif trading_strategy == 'Linear SVM':
+        signals = get_svm_signals(data=ohlc_df, start=start_date, end=end_date, stock=stock)
+        portfolio = calculate_portfolio(
+            signals,
+            initial_capital=initial_capital,
+            share_size=share_size,
+        )
 
-    plot_trades(svm_signals)
-    plot_portfolio(svm_ptf)
-
-
-    plot_returns(svm_ptf)
+    st.write(plot_trades(signals))
+    st.write(plot_portfolio(portfolio))
+    st.write(plot_returns(portfolio))
 
 
 with results:
