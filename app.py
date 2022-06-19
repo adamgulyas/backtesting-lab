@@ -197,7 +197,7 @@ def get_dmac_signals(data=pd.DataFrame, fast_window=4, slow_window=100):
     # Generate signals based on SMA crossovers
     df['Signal'] = 0.0
     df['Signal'][fast_window:] = np.where(
-        df['SMA Fast'][fast_window:] >
+        df['SMA Fast'][fast_window:] <
         df['SMA Slow'][fast_window:], 1.0, 0.0
     )
 
@@ -441,8 +441,8 @@ with program:
             share_size=share_size,
         )
 
-    st.write(plot_trades(signals))
     st.write(plot_portfolio(portfolio))
+    st.write(plot_trades(signals))
     st.write(plot_returns(portfolio))
 
 
