@@ -72,7 +72,7 @@ with option_select:
         # st.write('You Selected:',date)
 
    # with option_select_2:
-        col4, col5 = st.columns(2)
+        col4, col5, col6 = st.columns(3)
 
         with col4:
             initial_capital = st.number_input(
@@ -91,7 +91,6 @@ with option_select:
                 min_value=100,
                 max_value=10000000
             )
-        col6 = st.columns(1)
         
         with col6:
             is_sentiment = st.checkbox('NY Times Sentiment Analysis')
