@@ -95,18 +95,20 @@ with option_select:
         is_sentiment = st.checkbox('NY Times Sentiment Analysis')
 
         submitted = st.form_submit_button('Run My Algorithm')
+with option_select_dmac:    
+    if trading_strategy == 'DMAC':
     
-with option_select_dmac:
-    col7, col8, = st.columns(2)
+        col7, col8, = st.columns(2)
 
-    with col7:
-        # st.write("Fast SMA Window")
-        fast_window = st.slider('Fast SMA Window',0,60,4) #min: 0, max:60, def:4
+        with col7:
+            # st.write("Fast SMA Window")
+            fast_window = st.slider('Fast SMA Window',0,60,4) #min: 0, max:60, def:4
 
-    with col8:
-        # st.write('Slow SMA Window')
-        slow_window = st.slider('Slow SMA Window',0,180,100) #min: 0, max:180, def:100
-
+        with col8:
+            # st.write('Slow SMA Window')
+            slow_window = st.slider('Slow SMA Window',0,180,100) #min: 0, max:180, def:100
+    else:
+        pass
         
 
 
