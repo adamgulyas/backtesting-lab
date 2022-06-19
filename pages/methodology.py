@@ -21,7 +21,26 @@ with nlp:
     st.write('We utilized the NYT API to collect the news articles and an NLP technology called Vader to determine the sentiment of each article. After we determined the sentiment of each article on each day, we used classification to see how it impacts the stock price')
     st.subheader('NYT Sentiment')
     st.write('Each date in the below dataframe represents one new article we analyzed for sentiment. A 1 represents a positive sentiment and a 0 represents a negative sentiment')
-    sentiment_df = pd.read_csv('svm_signals.csv')
+    sentiment_df = pd.code('# strategy 1: no boundries
+def get_simple_signals(data):
+    sentiment_signal = []
+    for score in data['compound']:
+        if score > 0:
+            sentiment_signal.append(1)   
+        elif score < 0:
+            sentiment_signal.append(0)
+        else:
+             sentiment_signal.append(1)
+    data['sentiment signal'] = sentiment_signal 
+    data.drop(columns='compound', inplace=True)
+    
+    if data.index[0] == datetime.date(1997, 6, 1):
+        export_name = 'dcb'
+    elif data.index[0] == datetime.date(2007, 6, 1):
+        export_name = 'crsh'
+    elif data.index[0] == datetime.date(2020, 3, 1):
+        export_name = 'cvd'
+    data.to_csv(f'../project-2/data/simple_{export_name}_signal.csv')')
     sentiment_df
     
 with technical_analysis:
