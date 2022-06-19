@@ -36,6 +36,7 @@ svm_RUSSELL2000 = joblib.load('models/linear_svm_RUSSELL 2000.pkl')
 # Declare Streamlit containers
 header = st.container()
 option_select = st.container()
+option_select_2 = st.container()
 option_select_dmac = st.container()
 run = st.container()
 program = st.container()
@@ -70,7 +71,7 @@ with option_select:
             )
         # st.write('You Selected:',date)
 
-    with option_select:
+    with option_select_2:
         col4, col5 = st.columns(2)
 
         with col4:
