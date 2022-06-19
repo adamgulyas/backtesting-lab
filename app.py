@@ -365,8 +365,8 @@ def plot_trades(data=pd.DataFrame, stock=stock, title='Trades View'):
     )
 
     all_figs.update_layout(
-        # width=1200,
-        # height=600,
+        width=1400,
+        height=700,
         xaxis_title='Date',
         yaxis_title='Amount',
         title=title
@@ -399,8 +399,8 @@ def plot_portfolio(data=pd.DataFrame, title='Portfolio Performance'):
     )
 
     all_fig.update_layout(
-        # width=1200,
-        # height=600,
+        width=1400,
+        height=700,
         xaxis_title='Date',
         yaxis_title='Amount',
         title=title)
@@ -426,8 +426,8 @@ def plot_returns(data=pd.DataFrame, title='Portfolio Returns'):
     )
 
     all_fig.update_layout(
-        # width=1200,
-        # height=600,
+        width=1400,
+        height=700,
         xaxis_title='Date',
         yaxis_title='Amount',
         title=title)
