@@ -64,7 +64,10 @@ with option_select:
             ('S&P 500','NASDAQ 100','RUSSELL 2000'))
 
         with col3:
-        time_period = st.selectbox('Time Period',('Dot-com Bubble','2008 Crash','Covid'))
+            time_period = st.selectbox(
+                'Time Period',
+                ('Dot-com Bubble','2008 Crash','Covid')
+            )
         # st.write('You Selected:',date)
 
     with option_select:
