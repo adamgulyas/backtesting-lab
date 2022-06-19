@@ -92,8 +92,7 @@ with option_select:
                 max_value=10000000
             )
         
-        with col6:
-            is_sentiment = st.checkbox('NY Times Sentiment Analysis')
+        is_sentiment = st.checkbox('NY Times Sentiment Analysis')
 
         submitted = st.form_submit_button('Run My Algorithm')
     
