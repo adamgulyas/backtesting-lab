@@ -15,6 +15,13 @@ from sklearn.preprocessing import StandardScaler
 from sklearn.metrics import classification_report
 from finta import TA
 
+#Page Configuration
+st.set_page_config(
+    layout='wide',
+    page_icon=':random:',
+    
+)
+
 # Import data
 market_data_df = pd.read_csv('data/markets_ohlc.csv', header=[0,1], index_col=0)
 nlp_signal_dcb = pd.read_csv('data/simple_dcb_signal.csv', index_col=0, parse_dates=True, infer_datetime_format=True)
