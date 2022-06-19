@@ -108,9 +108,8 @@ with option_select_dmac:
             # st.write('Slow SMA Window')
             slow_window = st.slider('Slow SMA Window',0,180,100) #min: 0, max:180, def:100
     if trading_strategy == 'Linear SVM':
-        pass
-        
-
+        fast_window = 4
+        slow_window = 100
 
 #with run:
   #  if st.button('Run My Trading Algoritm'):
