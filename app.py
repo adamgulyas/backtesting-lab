@@ -24,6 +24,9 @@ st.set_page_config(
 
 # Import data
 market_data_df = pd.read_csv('data/markets_ohlc.csv', header=[0,1], index_col=0)
+nlp_signal_dcb = pd.read_csv('data/simple_dcb_signal.csv', index_col=0, parse_dates=True, infer_datetime_format=True)
+nlp_signal_crsh = pd.read_csv('data/simple_crsh_signal.csv', index_col=0, parse_dates=True, infer_datetime_format=True)
+nlp_signal_cvd = pd.read_csv('data/simple_cvd_signal.csv', index_col=0, parse_dates=True, infer_datetime_format=True)
 
 # Import trained models
 svm_SP500 = joblib.load('models/linear_svm_S&P 500.pkl')
@@ -97,7 +100,7 @@ with option_select_dmac:
         slow_window = st.slider('Slow SMA Window',0,180,100) #min: 0, max:180, def:100
 
     with col8:
-        is_nlp = st.checkbox('NY Times Sentiment Analysis')
+        is_sentiment = st.checkbox('NY Times Sentiment Analysis')
 
 
 #with run:
@@ -158,7 +161,7 @@ def get_under_over_signals(data=pd.DataFrame):
 
 
 @st.cache
-def get_fast_slow_sma(data=pd.DataFrame, fast_window=4, slow_window=100):
+def get_fast_slow_sma(data=pd.DataFrame, fast_window=int, slow_window=int):
     """
     Create a signal based on the current day's closing price being higher or
     lower than yesterdays.
@@ -183,7 +186,7 @@ def get_fast_slow_sma(data=pd.DataFrame, fast_window=4, slow_window=100):
 
 
 @st.cache
-def get_dmac_signals(data=pd.DataFrame, fast_window=4, slow_window=100):
+def get_dmac_signals(data=pd.DataFrame, fast_window=int, slow_window=int):
     """
     Create a signal based on the current day's closing price being higher or
     lower than yesterdays.
@@ -424,6 +427,9 @@ def plot_returns(data=pd.DataFrame, title='Portfolio Returns'):
     return all_fig
 
 
+
+def get_entries_exits(data=pd.DataFrame, sentiment=bool):
+    pass
 
 #------------------------------------------------------------------------------
 
