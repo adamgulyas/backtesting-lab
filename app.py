@@ -19,14 +19,14 @@ from finta import TA
 st.set_page_config(
     layout='wide',
     page_icon=':random:',
-    
+
 )
 
 # Import data
-market_data_df = pd.read_csv('data/markets_ohlc.csv', header=[0,1], index_col=0)
-nlp_signal_dcb = pd.read_csv('data/simple_dcb_signal.csv', index_col=0, parse_dates=True, infer_datetime_format=True)
-nlp_signal_crsh = pd.read_csv('data/simple_crsh_signal.csv', index_col=0, parse_dates=True, infer_datetime_format=True)
-nlp_signal_cvd = pd.read_csv('data/simple_cvd_signal.csv', index_col=0, parse_dates=True, infer_datetime_format=True)
+market_data_df = pd.read_csv('data/markets_ohlc.csv', header=[0,1], index_col=0,)
+nlp_signals_dcb = pd.read_csv('data/simple_dcb_signal.csv', index_col=0,)
+nlp_signals_crsh = pd.read_csv('data/simple_crsh_signal.csv', index_col=0,)
+nlp_signals_cvd = pd.read_csv('data/simple_cvd_signal.csv', index_col=0,)
 
 # Import trained models
 svm_SP500 = joblib.load('models/linear_svm_S&P 500.pkl')
@@ -91,13 +91,13 @@ with option_select:
                 min_value=100,
                 max_value=10000000
             )
-        
+
         is_sentiment = st.checkbox('NY Times Sentiment Analysis')
 
         submitted = st.form_submit_button('Run My Algorithm')
-with option_select_dmac:    
+with option_select_dmac:
     if trading_strategy == 'DMAC':
-    
+
         col7, col8, = st.columns(2)
 
         with col7:
@@ -436,8 +436,29 @@ def plot_returns(data=pd.DataFrame, title='Portfolio Returns'):
 
 
 
-def get_entries_exits(data=pd.DataFrame, sentiment=bool):
-    pass
+def add_sentiment(data=pd.DataFrame):
+    df = data.copy()
+    #yo
+    if time_period == 'Dot-com Bubble': nlp_signals = nlp_signals_dcb
+    elif time_period == '2008 Crash':   nlp_signals = nlp_signals_crsh
+    elif time_period == 'Covid':        nlp_signals = nlp_signals_cvd
+
+    start = df.iloc[0].name
+    end = df.iloc[-1].name
+
+    nlp_signals = nlp_signals[start:end].copy()
+    df['Sentiment'] = nlp_signals
+
+    df['Combined'] = df['Signal'] + df['Sentiment']
+
+    df['New Signal'] = np.where(
+        df['Combined'] == 2.0, 1.0, 0.0
+    )
+
+    df['Signal'] = df['New Signal'].copy()
+    df = df.drop(columns=['Sentiment', 'Combined', 'New Signal'])
+
+    return df
 
 #------------------------------------------------------------------------------
 
@@ -447,7 +468,10 @@ def get_entries_exits(data=pd.DataFrame, sentiment=bool):
 with program:
 
     if trading_strategy == 'DMAC':
+
         signals = get_dmac_signals(ohlc_df, fast_window=fast_window, slow_window=slow_window)
+        if is_sentiment: signals = add_sentiment(signals)
+
         portfolio = calculate_portfolio(
             signals,
             initial_capital=initial_capital,
@@ -455,7 +479,10 @@ with program:
         )
 
     elif trading_strategy == 'Linear SVM':
+
         signals = get_svm_signals(data=ohlc_df, start=start_date, end=end_date, stock=stock)
+        if is_sentiment: signals = add_sentiment(signals)
+
         portfolio = calculate_portfolio(
             signals,
             initial_capital=initial_capital,
