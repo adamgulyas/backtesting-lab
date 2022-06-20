@@ -13,6 +13,7 @@ from pandas.tseries.offsets import DateOffset
 from sklearn.svm import LinearSVC
 from sklearn.preprocessing import StandardScaler
 from sklearn.metrics import classification_report
+from itertools import groupby
 from finta import TA
 
 #Page Configuration
@@ -297,6 +298,87 @@ def calculate_portfolio(data=pd.DataFrame, initial_capital=10000, share_size=500
 
 
 
+def evaluate_portfolio(df=pd.DataFrame):
+
+    # df = data.pct_change()
+
+    # Create a list for the column name
+    columns = ["Backtest Results"]
+
+    # Create a list holding the names of the new evaluation metrics
+    metrics = [
+        "Annualized Return",
+        "Cumulative Returns",
+        "Annual Volatility",
+        "Sharpe Ratio",
+        "Sortino Ratio",
+        "Best Winning Streak",
+        "Worst Losing Streak"]
+
+    # Initialize the DataFrame with index set to the evaluation metrics and the column
+    ptf_eval_df = pd.DataFrame(index=metrics, columns=columns)
+
+    # Calculate annualized return
+    ptf_eval_df.loc["Annualized Return"] = round(
+        df.mean() * 252
+        ,2
+        )
+
+    # Calculate cumulative return
+
+    ptf_eval_df.loc["Cumulative Returns"] = round(
+        ((1 + df.cumsum()) -1)[-1]
+        ,2
+        )
+
+
+    # Calculate annual volatility
+    ptf_eval_df.loc["Annual Volatility"] = round(
+        df.std() * np.sqrt(252)
+        ,2
+        )
+
+    # Calculate Sharpe ratio
+    ptf_eval_df.loc["Sharpe Ratio"] = round(
+        df.mean() * 252 / (
+        df.std() * np.sqrt(252))
+        ,2
+        )
+
+    # Create a DataFrame that contains the Portfolio Daily Returns column
+    sortino_ratio_df = df.copy()
+
+    # The Sortino ratio is reached by dividing the annualized return value
+    # by the downside standard deviation value
+    sortino_ratio = round(
+            df.mean() * 252 / (df[df < 0].std() * np.sqrt(252))
+            ,2
+            )
+
+    # Add the Sortino ratio to the evaluation DataFrame
+    ptf_eval_df.loc["Sortino Ratio"] = round(sortino_ratio,2)
+
+    # Best and Worst streak
+    from itertools import groupby
+
+    # Best winning streak
+    L = df.copy()
+    L[L > 0] = 1
+    L[L < 0] = float("NaN")
+    longest = max((list(g) for _, g in groupby(L)), key=len)
+    ptf_eval_df.loc["Best Winning Streak"] = len(longest)
+
+    # Worst losing streak
+    L = df.copy()
+    L[L < 0] = -1
+    L[L > 0] = float("NaN")
+    longest = max((list(g) for _, g in groupby(L)), key=len)
+    ptf_eval_df.loc["Worst Losing Streak"] = len(longest)
+
+    return ptf_eval_df
+
+
+
 # Plotting functions
 
 # @st.cache
@@ -382,17 +464,17 @@ def plot_portfolio(data=pd.DataFrame, title='Portfolio Performance'):
 
     df['Entry/Exit'] = df['Signal'].diff()
 
-    entries = df[df['Entry/Exit'] == 1.0]['Portfolio Total']
+    entries = df[df['Entry/Exit'] == 1.0]['Algorithm Cumulative Returns']
     entries.rename('Buy', inplace=True)
 
     entries_fig = get_entries_fig(entries)
 
-    exits = df[df['Entry/Exit'] == -1.0]['Portfolio Total']
+    exits = df[df['Entry/Exit'] == -1.0]['Algorithm Cumulative Returns']
     exits.rename('Sell', inplace=True)
 
     exits_fig = get_exits_fig(exits)
 
-    price_sma_fig = px.line(df[['Portfolio Total']])
+    price_sma_fig = px.line(df[['Algorithm Cumulative Returns']])
 
     all_fig = go.Figure(
         data=price_sma_fig.data + entries_fig.data + exits_fig.data
@@ -489,9 +571,9 @@ with program:
             share_size=share_size,
         )
 
+    st.write(plot_returns(portfolio))
     st.write(plot_portfolio(portfolio))
     st.write(plot_trades(signals))
-    st.write(plot_returns(portfolio))
 
 
 with results:
@@ -499,14 +581,18 @@ with results:
     col6, col7, col8, col9 = st.columns(4)
 
     with col6:
-              st.write('Cumulative Return')
-              st.write("")
-    with col7:
-              st.write('Volatility')
-              st.write("")
-    with col8:
-              st.write('Sharpe Ratio')
-              st.write('')
-    with col9:
-              st.write('Sortino Ratio')
-              st.write('')
+        st.write('Cumulative Return')
+
+        ptf_eval = evaluate_portfolio(portfolio['Algorithm Returns'])
+
+        # st.write(ptf_eval)
+        st.write(ptf_eval)
+    # with col7:
+    #           st.write('Volatility')
+    #           st.write("")
+    # with col8:
+    #           st.write('Sharpe Ratio')
+    #           st.write('')
+    # with col9:
+    #           st.write('Sortino Ratio')
+    #           st.write('')
