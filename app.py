@@ -13,6 +13,7 @@ from pandas.tseries.offsets import DateOffset
 from sklearn.svm import LinearSVC
 from sklearn.preprocessing import StandardScaler
 from sklearn.metrics import classification_report
+from itertools import groupby
 from finta import TA
 
 #Page Configuration
@@ -41,14 +42,11 @@ option_select_dmac = st.container()
 run = st.container()
 program = st.container()
 results = st.container()
-
-#with st.sidebar:
-#    st.sidebar.button('Analysis Tool')
-#    st.sidebar.button('Methodology')
+trades = st.container()
 
 with header:
-    st.title('Technical and Sentiment Stock Trading Algorithm')
-    st.write('This web application is designed to help retail stock traders and investors determine if they should buy or sell a stock using news sentiment analysis and technical stock trading analysis. If you wish to learn more about our methodology, please visit the methodology tab')
+    st.title('Backtesting Lab')
+    st.write('This application is designed to help retail stock traders and investors determine if they should buy or sell a stock using news sentiment analysis and technical stock trading analysis. If you wish to learn more about our methodology, please visit the methodology tab')
 
 with option_select:
     with st.form('Select Your Features'):
@@ -69,9 +67,7 @@ with option_select:
                 'Time Period',
                 ('Dot-com Bubble','2008 Crash','Covid')
             )
-        # st.write('You Selected:',date)
 
-   # with option_select_2:
         col4, col5, col6 = st.columns(3)
 
         with col4:
@@ -86,33 +82,32 @@ with option_select:
         with col5:
             share_size = st.number_input(
                 label='Share Size',
-                value=500,
+                value=10,
                 step=1000,
-                min_value=100,
-                max_value=10000000
+                min_value=1,
+                max_value=1000
             )
 
         is_sentiment = st.checkbox('NY Times Sentiment Analysis')
 
-        submitted = st.form_submit_button('Run My Algorithm')
+        submitted = st.form_submit_button('Run Algorithm')
+
 with option_select_dmac:
+
     if trading_strategy == 'DMAC':
 
         col7, col8, = st.columns(2)
 
         with col7:
-            # st.write("Fast SMA Window")
             fast_window = st.slider('Fast SMA Window',0,60,4) #min: 0, max:60, def:4
 
         with col8:
-            # st.write('Slow SMA Window')
             slow_window = st.slider('Slow SMA Window',0,180,100) #min: 0, max:180, def:100
+
     if trading_strategy == 'Linear SVM':
+
         fast_window = 4
         slow_window = 100
-
-#with run:
-  #  if st.button('Run My Trading Algoritm'):
 
 initial_capital = float(initial_capital)
 share_size = int(share_size)
@@ -277,11 +272,14 @@ def calculate_portfolio(data=pd.DataFrame, initial_capital=10000, share_size=500
 
     df['Position'] = share_size * df['Signal']
     df['Entry/Exit Position'] = df['Position'].diff()
-    df['Holdings'] = df['Close'] * df['Position']
+    df['Entry/Exit'] = df['Signal'].diff()
+    df['Portfolio Holdings'] = (
+        df["Close"] * df["Entry/Exit Position"].cumsum()
+    )
     df['Cash'] = (
         initial_capital - (df['Close'] * df['Entry/Exit Position']).cumsum()
     )
-    df['Portfolio Total'] = df['Cash'] + df['Holdings']
+    df['Portfolio Total'] = df['Cash'] + df['Portfolio Holdings']
     df['Actual Returns'] = df['Close'].pct_change()
     df['Actual Cumulative Returns'] = (
         1 + df['Actual Returns']
@@ -294,6 +292,122 @@ def calculate_portfolio(data=pd.DataFrame, initial_capital=10000, share_size=500
     df = df.dropna().sort_index(axis='columns')
 
     return df
+
+
+
+def evaluate_portfolio(data=pd.DataFrame):
+
+    df = data.copy()
+
+    # Create a list for the column name
+    columns = ["Backtest Results"]
+
+    # Create a list holding the names of the new evaluation metrics
+    metrics = [
+        "Annualized Return",
+        "Cumulative Returns",
+        "Annual Volatility",
+        "Sharpe Ratio",
+        "Sortino Ratio",
+        "Best Winning Streak",
+        "Worst Losing Streak"]
+
+    # Initialize the DataFrame with index set to the evaluation metrics and the column
+    ptf_eval_df = pd.DataFrame(index=metrics, columns=columns)
+
+    # Calculate annualized return
+    ptf_eval_df.loc["Annualized Return"] = df.mean() * 252
+
+    # Calculate cumulative return
+
+    ptf_eval_df.loc["Cumulative Returns"] = ((1 + df.cumsum()) - 1)[-1]
+
+
+    # Calculate annual volatility
+    ptf_eval_df.loc["Annual Volatility"] = df.std() * np.sqrt(252)
+
+    # Calculate Sharpe ratio
+    ptf_eval_df.loc["Sharpe Ratio"] = \
+        df.mean() * 252 / (df.std() * np.sqrt(252))
+
+
+    # Create a DataFrame that contains the Portfolio Daily Returns column
+    sortino_ratio_df = df.copy()
+
+    # The Sortino ratio is reached by dividing the annualized return value
+    # by the downside standard deviation value
+    sortino_ratio = df.mean() * 252 / (df[df < 0].std() * np.sqrt(252))
+
+    # Add the Sortino ratio to the evaluation DataFrame
+    ptf_eval_df.loc["Sortino Ratio"] = sortino_ratio
+
+    # Best and Worst streak
+    from itertools import groupby
+
+    # Best winning streak
+    L = df.copy()
+    L[L > 0] = 1
+    L[L < 0] = float("NaN")
+    longest = max((list(g) for _, g in groupby(L)), key=len)
+    ptf_eval_df.loc["Best Winning Streak"] = len(longest)
+
+    # Worst losing streak
+    L = df.copy()
+    L[L < 0] = -1
+    L[L > 0] = float("NaN")
+    longest = max((list(g) for _, g in groupby(L)), key=len)
+    ptf_eval_df.loc["Worst Losing Streak"] = len(longest)
+
+    return ptf_eval_df
+
+
+
+def evaluate_trades(data=pd.DataFrame):
+
+    df = data.copy()
+
+    trade_eval_df = pd.DataFrame(
+        columns=[
+            "Stock",
+            "Entry Date",
+            "Exit Date",
+            "Shares",
+            "Entry Share Price",
+            "Exit Share Price",
+            "Entry Portfolio Holding",
+            "Exit Portfolio Holding",
+            "Profit/Loss"]
+    )
+
+    for index, row in df.iterrows():
+
+        if row['Entry/Exit'] == 1:
+            entry_date = index
+            entry_portfolio_holding = row['Portfolio Holdings']
+            share_size = row['Entry/Exit Position']
+            entry_share_price = row['Close']
+
+        elif row['Entry/Exit'] == -1:
+            exit_date = index
+            exit_portfolio_holding = abs(row['Close'] * row['Entry/Exit Position'])
+            exit_share_price = row['Close']
+            profit_loss = exit_portfolio_holding - entry_portfolio_holding
+            trade_eval_df = trade_eval_df.append(
+                {
+                    'Stock': stock,
+                    'Entry Date': entry_date,
+                    'Exit Date': exit_date,
+                    'Shares': share_size,
+                    'Entry Share Price': entry_share_price,
+                    'Exit Share Price': exit_share_price,
+                    'Entry Portfolio Holding': entry_portfolio_holding,
+                    'Exit Portfolio Holding': exit_portfolio_holding,
+                    'Profit/Loss': profit_loss
+                },
+                ignore_index=True)
+
+
+    return trade_eval_df
 
 
 
@@ -369,7 +483,7 @@ def plot_trades(data=pd.DataFrame, stock=stock, title='Trades View'):
         height=700,
         xaxis_title='Date',
         yaxis_title='Amount',
-        title=title
+        # title=title
     )
 
     return all_figs
@@ -382,17 +496,18 @@ def plot_portfolio(data=pd.DataFrame, title='Portfolio Performance'):
 
     df['Entry/Exit'] = df['Signal'].diff()
 
-    entries = df[df['Entry/Exit'] == 1.0]['Portfolio Total']
+    entries = df[df['Entry/Exit'] == 1.0]['Algorithm Cumulative Returns']
     entries.rename('Buy', inplace=True)
 
     entries_fig = get_entries_fig(entries)
 
-    exits = df[df['Entry/Exit'] == -1.0]['Portfolio Total']
+    exits = df[df['Entry/Exit'] == -1.0]['Algorithm Cumulative Returns']
     exits.rename('Sell', inplace=True)
 
     exits_fig = get_exits_fig(exits)
 
-    price_sma_fig = px.line(df[['Portfolio Total']])
+    df.rename(columns={'Algorithm Cumulative Returns': 'Algorithm'}, inplace=True)
+    price_sma_fig = px.line(df[['Algorithm']])
 
     all_fig = go.Figure(
         data=price_sma_fig.data + entries_fig.data + exits_fig.data
@@ -403,7 +518,8 @@ def plot_portfolio(data=pd.DataFrame, title='Portfolio Performance'):
         height=700,
         xaxis_title='Date',
         yaxis_title='Amount',
-        title=title)
+        # title=title
+    )
 
     return all_fig
 
@@ -415,11 +531,10 @@ def plot_returns(data=pd.DataFrame, title='Portfolio Returns'):
     Input data must be a df made by `calculate_portfolio()`
     """
 
-    df = data.copy()
+    df = data[['Actual Cumulative Returns', 'Algorithm Cumulative Returns']].copy()
+    df.columns = ['Actual', 'Algorithm']
 
-    returns_fig = px.line(
-        df[['Actual Cumulative Returns', 'Algorithm Cumulative Returns']]
-    )
+    returns_fig = px.line(df)
 
     all_fig = go.Figure(
         data=returns_fig.data
@@ -430,7 +545,8 @@ def plot_returns(data=pd.DataFrame, title='Portfolio Returns'):
         height=700,
         xaxis_title='Date',
         yaxis_title='Amount',
-        title=title)
+        # title=title
+    )
 
     return all_fig
 
@@ -489,24 +605,70 @@ with program:
             share_size=share_size,
         )
 
-    st.write(plot_portfolio(portfolio))
-    st.write(plot_trades(signals))
+    st.write('#')
+    st.write('#')
+    st.header('Portfolio Returns')
     st.write(plot_returns(portfolio))
+    st.header('Portfolio Performace')
+    st.write(plot_portfolio(portfolio))
+    st.header('Entry/Exit Signals')
+    st.write(plot_trades(signals))
 
 
 with results:
-    st.header('Trading Algorithm Results')
+    st.header('Portfolio Evaluation')
     col6, col7, col8, col9 = st.columns(4)
 
+    ptf_eval = evaluate_portfolio(portfolio['Algorithm Returns'])
+
     with col6:
-              st.write('Cumulative Return')
-              st.write("")
+        st.write('Cumulative Return')
+        cum_returns = portfolio['Algorithm Cumulative Returns'][-1]
+        cum_returns_price = cum_returns * initial_capital
+        st.subheader(f'${round(cum_returns_price, 2)}')
+
     with col7:
-              st.write('Volatility')
-              st.write("")
+        st.write('Annualized Return')
+        ann_returns = ptf_eval.loc['Annualized Return', 'Backtest Results']
+        st.subheader(f'${round(ann_returns * initial_capital, 2)}')
+
     with col8:
-              st.write('Sharpe Ratio')
-              st.write('')
+        st.write('Portfolio Total')
+        st.subheader(f'${round(initial_capital + cum_returns_price, 2)}')
+
+
     with col9:
-              st.write('Sortino Ratio')
-              st.write('')
+        st.write('Best Winning Streak')
+        best_streak = ptf_eval.loc['Best Winning Streak', 'Backtest Results']
+        st.subheader(f'${int(best_streak)}')
+
+    st.write('#')
+
+    col10, col11, col12, col13 = st.columns(4)
+
+    with col10:
+        st.write('Market Return')
+        market_returns = portfolio['Actual Cumulative Returns'][-1]
+        market_returns_price = market_returns * initial_capital
+        st.subheader(f'${round(market_returns_price, 2)}')
+
+    with col11:
+        st.write('Annual Volatility')
+        ann_vol = ptf_eval.loc['Annual Volatility', 'Backtest Results']
+        st.subheader(round(ann_vol, 3))
+
+    with col12:
+        st.write('Sharpe Ratio')
+        sharpe = ptf_eval.loc['Sharpe Ratio', 'Backtest Results']
+        st.subheader(round(sharpe, 3))
+
+    with col13:
+        st.write('Sortino Ratio')
+        sortino = ptf_eval.loc['Sortino Ratio', 'Backtest Results']
+        st.subheader(round(sortino, 3))
+
+with trades:
+    st.write('#')
+    st.header('Trades Evaluation')
+    trades = evaluate_trades(portfolio)
+    st.table(trades)
