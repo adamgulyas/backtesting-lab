@@ -47,28 +47,32 @@ trades = st.container()
 with header:
     st.title('Backtesting Lab')
     st.write('This application is designed to help retail stock traders and investors determine if they should buy or sell a stock using news sentiment analysis and technical stock trading analysis. If you wish to learn more about our methodology, please visit the methodology tab')
+    st.write('###')
+
+    col0, col01, col02, col03, col04, col05 = st.columns(6)
+
+    with col0:
+        trading_strategy = st.selectbox(
+        'Select a Trading Strategy',
+        ('DMAC','Linear SVM'))
 
 with option_select:
     with st.form('Select Your Features'):
-        col1, col2, col3 = st.columns(3)
+        col1, col2, col3, col30, col31, col32 = st.columns(6)
 
         with col1:
-            trading_strategy = st.selectbox(
-            'Trading Strategy',
-            ('DMAC','Linear SVM'))
-
-        with col2:
+            pass
             stock = st.selectbox(
             'Stock Market Index',
             ('S&P 500','NASDAQ 100','RUSSELL 2000'))
 
-        with col3:
+        with col2:
             time_period = st.selectbox(
                 'Time Period',
                 ('Dot-com Bubble','2008 Crash','Covid')
             )
 
-        col4, col5, col6 = st.columns(3)
+        col4, col5, col6, col60, col61, col62 = st.columns(6)
 
         with col4:
             initial_capital = st.number_input(
@@ -96,7 +100,7 @@ with option_select_dmac:
 
     if trading_strategy == 'DMAC':
 
-        col7, col8, = st.columns(2)
+        col7, col8, col80, col81, col82, col83 = st.columns(6)
 
         with col7:
             fast_window = st.slider('Fast SMA Window',0,60,4) #min: 0, max:60, def:4
