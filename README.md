@@ -11,8 +11,7 @@
 * Vader was used  as part of NLP to create a sentiment score using articles from NY Times.  Although trading return improved when users include sentiment score.  However, the sample size is limited to draw any conclusive evidence.
 ---
 ## How to use:
-* Run a price-data-preprocessing.ipynb
-* A streamlit app
+* Run app.py
 ## Python libraries:
 * numpy, pandas, plotly, yfinance, finta, sklearn, nltk.sentiment.vader
 ## Installations:
