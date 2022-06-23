@@ -8,7 +8,11 @@
 * The app was created using streamlit.  At the moment, the users are limited to one technical indicator(DMAC), support vector machine(SVM) with fixed parameters and Vader as a chosen NLP method to generate a sentiment score.
 * As trading environment evolves, limited users to one technical indicator(DMAC) may not be conductive in generating the right signals.  In the future development, app will need to include more technical indicators so users to choose the appropriate indicator for the right market environment.
 * Having a SVM with fixed parameters may not be optimal as each data set may need different parameters.  More research needed as to which optimal parameter's setting to achieve the desired output from the classification report.
-* Vader was used  as part of NLP to create a sentiment score using articles from NY Times.  Although trading return improved when users include sentiment score.  However, the sample size is limited to draw any conclusive evidence.
+* Vader was used  as part of NLP to create a sentiment score using articles from NY Times.  Although trading return improved when users include sentiment score.  However, more testing needed to prove the efficacy of this model.
+---
+## Output
+* The app will produce various portfolio performance and table to enable users to assess the efficacy of their chosen strategy.  The following chart compares the strategy performance vs. actual performance.  This chart will help users to determine whether their chosen strategy is adding value.
+
 ---
 ## How to use:
 * Run app.py
