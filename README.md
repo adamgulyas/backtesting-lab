@@ -35,6 +35,8 @@ https://github.com/adamgulyas/project-2/blob/main/images/Port_Eval_DMAC_Sent.PNG
 ---
 https://github.com/adamgulyas/project-2/blob/main/images/Port_Eval_SVM_sent.PNG
 ---
+https://github.com/adamgulyas/project-2/blob/main/images/Port_Eval_DMAC_Sent_Covid.PNG
+
 
 
 
