@@ -23,6 +23,8 @@ https://github.com/adamgulyas/project-2/blob/main/images/Port_Eval_DMAC.PNG
 https://github.com/adamgulyas/project-2/blob/main/images/Port_Eval_SVM.PNG
 * The next following charts will show the outperformance when sentiments generated from Vader NLP to both DMAC and SVM signals.  When sentiment signals were combined to both DMAC and SVM signals, the performance improved.  However, the outperformance isn't consistent throughout different testing periods.  During Covid period, sentiment signal did not improve the performance.  This underperformance could be due to the introduction of NLP to the market in recent past.  As more market participants used NLP in their trading, the advantage of one participant over the other dissipated.
 * Portfolio Perf that includes sentiment signals.  Performance for Dotcom period.
+https://github.com/adamgulyas/project-2/blob/main/images/Port_Eval_DMAC_Sent.PNG
+
 
 
 
