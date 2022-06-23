@@ -15,8 +15,14 @@
 * The following chart compares the strategy performance vs. actual performance.  This chart will help users to determine whether their chosen strategy is adding value.
 https://github.com/adamgulyas/project-2/blob/main/images/port_perf.png
 * The following chart shows the buy/sell signals produced from user's chosen strategy.  From this chart, users can graphically assess how well each signal contributed to the strategy's performance.
+https://github.com/adamgulyas/project-2/blob/main/images/entry_exit.png
+* The next following charts will show the relative performance between strategies.  
+* DMAC vs. SVM.  
+* The simple DMAC strategy outperformed the SVM.  This outperfomance could be due to the fact that some of the parameters that were chosen may not be appropriate for the data set.  The Radial Basis Function Kernel was chosen for SVM.  Perhaps a Linear Kernel Function would be more appropriate.  The future app should give users the flexibility to change parameters so the ML model can be trained better.
 
-* The next following charts will demonstrate 
+
+
+
 
 ---
 ## How to use:
