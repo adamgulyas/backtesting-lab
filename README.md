@@ -11,7 +11,12 @@
 * Vader was used  as part of NLP to create a sentiment score using articles from NY Times.  Although trading return improved when users include sentiment score.  However, more testing needed to prove the efficacy of this model.
 ---
 ## Output
-* The app will produce various portfolio performance and table to enable users to assess the efficacy of their chosen strategy.  The following chart compares the strategy performance vs. actual performance.  This chart will help users to determine whether their chosen strategy is adding value.
+* The app will produce various portfolio performance and table to enable users to assess the efficacy of their chosen strategy.  
+* The following chart compares the strategy performance vs. actual performance.  This chart will help users to determine whether their chosen strategy is adding value.
+https://github.com/adamgulyas/project-2/blob/main/images/port_perf.png
+* The following chart shows the buy/sell signals produced from user's chosen strategy.  From this chart, users can graphically assess how well each signal contributed to the strategy's performance.
+
+* The next following charts will demonstrate 
 
 ---
 ## How to use:
