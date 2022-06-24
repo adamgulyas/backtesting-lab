@@ -1,20 +1,15 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# Import dependenciess
-from signal import signal
+# Import dependencies
 import joblib
 import numpy as np
 import pandas as pd
 import plotly.graph_objects as go
 import plotly.express as px
 import streamlit as st
-from pandas.tseries.offsets import DateOffset
-from sklearn.svm import LinearSVC
 from sklearn.preprocessing import StandardScaler
-from sklearn.metrics import classification_report
 from itertools import groupby
-from finta import TA
 
 #Page Configuration
 st.set_page_config(

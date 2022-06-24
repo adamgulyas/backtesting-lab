@@ -4,6 +4,34 @@ For this project, our team created a platform that allows users to generate stoc
 
 [Visit Backtesting Lab here](https://adamgulyas-project-2-app-d3jkvd.streamlitapp.com/)
 
+## Usage
+
+### Environment
+
+Requires an [Anaconda](https://www.anaconda.com/products/distribution) virtual environment running Python >= 3.7.
+
+Activate your Anaconda virtual environment.
+```sh
+conda activate <env>
+```
+
+### Dependencies
+
+These installations are required to run the analysis. Newer package versions can be used, but be aware that library updates may cause code errors in the notebook.
+
+```sh
+pip install numpy
+pip install pandas
+pip install matplotlib
+pip install plotly
+pip install scikit-learn==1.0.2
+pip install joblib
+```
+
+### Run
+
+Run the `.ipynb` notebooks using the Jupyter Notebook editor of your choice.
+
 ## Description
 
 * The Streamlit app generates buy/sell signals for the S&P 500, Nasdaq 100, and Russell 2000 indices by using either one or a combination of technical indicators, ML and NLP.
@@ -22,9 +50,13 @@ There are three charts that display key information to the user:
   2. Portfolio trade performance
   3. Entry/exit signals and DMAC
 
+### Portfolio Returns
+
 The first chart compares the algorithm’s performance to the index’s performance. This chart will help users to determine whether their chosen strategy is adding value.
 
 ![](images/port_perf.png)
+
+### Portfolio Performance
 
 The chart below shows the buy/sell signals produced from the algorithm. From this chart, users can visually assess how well each signal contributed to the strategy's performance.
 
@@ -39,6 +71,8 @@ The following table shows the relative performance between algorithms.
 ### Linear SVM
 
 ![](images/Port_Eval_SVM.PNG)
+
+## With Sentiment Added
 
 The following charts show the outperformance when NY Times sentiment signals are added. However, the outperformance isn't consistent throughout different testing periods. During the Covid period, sentiment signals did not improve the performance. This underperformance could be due to the introduction of NLP to the market in the recent past. As more market participants used NLP in their trading, the advantage of one participant over the other dissipated.
 
