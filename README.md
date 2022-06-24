@@ -72,7 +72,7 @@ Portfolio performance for S&P using SVM during dot-com bubble
 ![](images/svm_sp_port_perf_dotcom.png)
 ---
 ### Trade entry/exit signals
-The chart belows shows the entry/exit signals from both DMAC and SVM signals.  The chart shows help users to assess the trading turn-over from each strategy.
+The chart belows shows the entry/exit signals from both DMAC and SVM signals.  The chart helps users to assess the amount of trading turn-over from each strategy.
 ---
 Entry/exit signals for S&P using DMAC during dot-com bubble
 ![](images/dmac_sp_entry_exit_dotcom.png)
@@ -80,15 +80,19 @@ Entry/exit signals for S&P using DMAC during dot-com bubble
 Entry/exit signals for S&P using SVM during dot-com bubble
 ![](images/svm_sp_entry_exit_dotcom.png)
 ---
-The following table shows the relative performance between algorithms.  Performance for Dotcom period.
+The following table shows the relative performance between algorithms.
 
 ### DMAC
-
-![](images/Port_Eval_DMAC.PNG)
+Performance during dot-com
+![](images/dmac_sp_eval_dotcom.PNG)
+Performance during Covid
+![](images/dmac_sp_eval_covid.PNG)
 
 ### Linear SVM
-
-![](images/Port_Eval_SVM.PNG)
+Performance during dot-com
+![](images/svm_sp_eval_dotcom.PNG)
+Performance during Covid
+![](images/svm_sp_eval_covid.PNG)
 
 ## With Sentiment Added
 
@@ -98,19 +102,19 @@ Portfolio Performance that includes sentiment signals. Performance for Dotcom pe
 
 ### DMAC with Sentiment
 
-![](images/Port_Eval_DMAC_Sent.PNG)
+![](images/dmac_senti_sp_eval_dotcom.PNG)
 
 ### SVM with Sentiment
 
-![](images/Port_Eval_SVM_sent.PNG)
+![](images/svm_senti_sp_eval_dotcom.PNG)
 
 ### DMAC with Sentiment during Covid
 
-![](images/Port_Eval_DMAC_Sent_Covid.PNG)
+![](images/![](images/dmac_senti_sp_eval_dotcom.PNG).PNG)
 
 ### SVM with Sentiment during Covid
 
-![](images/Port_Eval_SVM_Sent_Covid.PNG)
+![](images/svm_senti_sp_eval_covid.PNG)
 
 ## Model Scoring
 
