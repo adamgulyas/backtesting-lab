@@ -52,7 +52,8 @@ There are three charts that display key information to the user.  Both DMAC and 
 
 ### Portfolio Returns
 
-The first chart compares the algorithm’s performance to the index’s performance. This chart will help users to determine whether their chosen strategy is adding value.  
+The first chart compares the algorithm’s performance to the index’s performance. This chart will help users to determine whether their chosen strategy is adding value.
+
 ---
 Portfolio returns for S&P using DMAC during dot-com bubble
 
@@ -64,6 +65,7 @@ Portfolio returns for S&P using SVM during dot-com bubble
 ### Portfolio Performance
 
 The chart below shows the buy/sell signals produced from the algorithm. From this chart, users can visually assess how well each signal contributed to the strategy's performance.
+
 ---
 Portfolio performance for S&P using DMAC during dot-com bubble
 ![](images/dmac_sp_port_perf_dotcom.png)
@@ -72,7 +74,8 @@ Portfolio performance for S&P using SVM during dot-com bubble
 ![](images/svm_sp_port_perf_dotcom.png)
 ---
 ### Trade entry/exit signals
-The chart belows shows the entry/exit signals from both DMAC and SVM signals.  The chart helps users to assess the amount of trading turn-over from each strategy.
+The chart below shows the entry/exit signals from both DMAC and SVM signals.  The chart will help users to assess the amount of trading trading over from each strategy.
+
 ---
 Entry/exit signals for S&P using DMAC during dot-com bubble
 ![](images/dmac_sp_entry_exit_dotcom.png)
@@ -110,7 +113,7 @@ Portfolio Performance that includes sentiment signals. Performance for Dotcom pe
 
 ### DMAC with Sentiment during Covid
 
-![](images/dmac_senti_sp_eval_covid.PNG).PNG)
+![](images/dmac_senti_sp_eval_covid.PNG)
 
 ### SVM with Sentiment during Covid
 
