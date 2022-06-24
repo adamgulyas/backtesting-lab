@@ -1,52 +1,91 @@
-# project-2: Backtesting Lab
----
-### Create a platform that allows users to test a trading strategy that uses Natural Language Process, Machine Learning and Technical Indicators
----
-## Description
----
-* This project creates a trading app where users create a buy/sell signals of equity indices by using either one or combination of Technical Indicator, Machine Learning and Natural Language Process.
-* The app was created using streamlit.  At the moment, the users are limited to one technical indicator(DMAC), support vector machine(SVM) with fixed parameters and Vader as a chosen NLP method to generate a sentiment score.
-* As trading environment evolves, limited users to one technical indicator(DMAC) may not be conductive in generating the right signals.  In the future development, app will need to include more technical indicators so users to choose the appropriate indicator for the right market environment.
-* Having a SVM with fixed parameters may not be optimal as each data set may need different parameters.  More research needed as to which optimal parameter's setting to achieve the desired output from the classification report.
-* Vader was used  as part of NLP to create a sentiment score using articles from NY Times.  Although trading return improved when users include sentiment score.  However, more testing needed to prove the efficacy of this model.
----
-## Output
-* The app will produce various portfolio performance and table to enable users to assess the efficacy of their chosen strategy.  
-* The following chart compares the strategy performance vs. actual performance.  This chart will help users to determine whether their chosen strategy is adding value.
----
-https://github.com/adamgulyas/project-2/blob/main/images/port_perf.png
----
-* The following chart shows the buy/sell signals produced from user's chosen strategy.  From this chart, users can graphically assess how well each signal contributed to the strategy's performance.
----
-https://github.com/adamgulyas/project-2/blob/main/images/entry_exit.png
----
-* The next following charts will show the relative performance between strategies.  
-* DMAC vs. SVM.  
-* The simple DMAC strategy outperformed the SVM.  This outperfomance could be due to the fact that some of the parameters that were chosen may not be appropriate for the data set.  The Radial Basis Function Kernel was chosen for SVM.  Perhaps a Linear Kernel Function would be more appropriate.  The future app should give users the flexibility to change parameters so the ML model can be trained better.
----
-https://github.com/adamgulyas/project-2/blob/main/images/Port_Eval_DMAC.PNG
----
-https://github.com/adamgulyas/project-2/blob/main/images/Port_Eval_SVM.PNG
----
-* The next following charts will show the outperformance when sentiments generated from Vader NLP to both DMAC and SVM signals.  When sentiment signals were combined to both DMAC and SVM signals, the performance improved.  However, the outperformance isn't consistent throughout different testing periods.  During Covid period, sentiment signal did not improve the performance.  This underperformance could be due to the introduction of NLP to the market in recent past.  As more market participants used NLP in their trading, the advantage of one participant over the other dissipated.
-* Portfolio Perf that includes sentiment signals.  Performance for Dotcom period.
----
-https://github.com/adamgulyas/project-2/blob/main/images/Port_Eval_DMAC_Sent.PNG
----
-https://github.com/adamgulyas/project-2/blob/main/images/Port_Eval_SVM_sent.PNG
----
-https://github.com/adamgulyas/project-2/blob/main/images/Port_Eval_DMAC_Sent_Covid.PNG
----
-https://github.com/adamgulyas/project-2/blob/main/images/Port_Eval_SVM_Sent_Covid.PNG
+# Backtesting Lab
 
----
-## How to use:
-* Run app.py
-## Python libraries:
-* numpy, pandas, plotly, yfinance, finta, sklearn, nltk.sentiment.vader
-## Installations:
-* pip install library
-## API
-* https://developer.nytimes.com/ - sign up to get API key.
+For this project, our team created a platform that allows users to generate stock trading algorithms with  Natural Language Processing (NLP), Machine Learning (ML), and technical indicators.
+
+[Visit Backtesting Lab here](https://adamgulyas-project-2-app-d3jkvd.streamlitapp.com/)
+
+## Description
+
+* The Streamlit app generates buy/sell signals for the S&P 500, Nasdaq 100, and Russell 2000 indices by using either one or a combination of technical indicators, ML and NLP.
+
+* Three time periods are available to backtest: the Dot-com Bubble, the 2008 Crash, and Covid. Each market episode includes a several-month lead up and trail off in order to capture the full picture of the time periods.
+
+* Users can choose between using the Dual Moving Average Crossover (DMAC) indicator where they can choose the fast and slow moving averages, or a Linear Support Vector Machine (SVM) that has been trained on 4 and 100 day SMAs.
+
+* Optionally, users can choose to combine the buy/sell signals with VADER sentiment scores derived from New York Times corpuses. Checking the ‘Add NY Times Sentiment Analysis’ box changes the algorithm to only enter long positions when the entry signal from either the DMAC or SVM is accompanied by a positive sentiment score.
+
+## Output
+
+There are three charts that display key information to the user:
+
+  1. Actual (buy & hold) cumulative returns vs. algorithm cumulative returns
+  2. Portfolio trade performance
+  3. Entry/exit signals and DMAC
+
+The first chart compares the algorithm’s performance to the index’s performance. This chart will help users to determine whether their chosen strategy is adding value.
+
+![](images/port_perf.png)
+
+The chart below shows the buy/sell signals produced from the algorithm. From this chart, users can visually assess how well each signal contributed to the strategy's performance.
+
+![](images/entry_exit.png)
+
+The following table shows the relative performance between algorithms.
+
+### DMAC
+
+![](images/Port_Eval_DMAC.PNG)
+
+### Linear SVM
+
+![](images/Port_Eval_SVM.PNG)
+
+The following charts show the outperformance when NY Times sentiment signals are added. However, the outperformance isn't consistent throughout different testing periods. During the Covid period, sentiment signals did not improve the performance. This underperformance could be due to the introduction of NLP to the market in the recent past. As more market participants used NLP in their trading, the advantage of one participant over the other dissipated.
+
+Portfolio Performance that includes sentiment signals. Performance for Dotcom period.
+
+### DMAC with Sentiment
+
+![](images/Port_Eval_DMAC_Sent.PNG)
+
+### SVM with Sentiment
+
+![](images/Port_Eval_SVM_sent.PNG)
+
+### DMAC with Sentiment during Covid
+
+![](images/Port_Eval_DMAC_Sent_Covid.PNG)
+
+### SVM with Sentiment during Covid
+
+![](images/Port_Eval_SVM_Sent_Covid.PNG)
+
+## Model Scoring
+
+Albeit both models have a low Area Under the ROC Curve (ROC AUC), the linear model performed better. Increasing the model's AUC will be a central focus in the next version of the app.
+
+### Linear SVM ROC Curve
+
+![](images/linear_svm_roc_curve.png)
+
+
+### SVM ROC Curve
+
+![](images/svm_roc_curve.png)
+
+
+## Retrospective
+
+* The DMAC algorithm beat the SVM algorithm. This outperformance is likely because the SVM was trained on 4 and 100 day SMAs, which do not explain much of the variance in the data. To rectify this, many technical indicators could be generated and run through feature importance to determine which indicators best explain the data.
+
+* Using an SVM with fixed parameters may not be optimal as each data set may need different parameters. More research is needed to determine the optimal parameters to train the model on.
+
+* Although trading returns improved when users included sentiment scores, more testing needed to prove the efficacy of this model. We would also like to explore rolling sentiment scores as opposed to daily scores currently in use.
+
+
+## Streamlit app
+
+[Take Backtesting Lab for a spin](https://adamgulyas-project-2-app-d3jkvd.streamlitapp.com/)
+
 
 
