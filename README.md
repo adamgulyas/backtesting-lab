@@ -110,7 +110,7 @@ Portfolio Performance that includes sentiment signals. Performance for Dotcom pe
 
 ### DMAC with Sentiment during Covid
 
-![](images/![](images/dmac_senti_sp_eval_covid.PNG).PNG)
+![](images/dmac_senti_sp_eval_covid.PNG).PNG)
 
 ### SVM with Sentiment during Covid
 
