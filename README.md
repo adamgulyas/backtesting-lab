@@ -62,7 +62,7 @@ The chart below shows the buy/sell signals produced from the algorithm. From thi
 
 ![](images/entry_exit.png)
 
-The following table shows the relative performance between algorithms.
+The following table shows the relative performance between algorithms.  Performance for Dotcom period.
 
 ### DMAC
 
