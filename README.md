@@ -105,13 +105,13 @@ The following charts show the outperformance when NY Times sentiment signals are
 
 ![](images/dmac_senti_sp_eval_dotcom.PNG)
 
-### SVM with Sentiment during Dot-com Bubble
-
-![](images/svm_senti_sp_eval_dotcom.PNG)
-
 ### DMAC with Sentiment during Covid
 
 ![](images/dmac_senti_sp_eval_covid.PNG)
+
+### SVM with Sentiment during Dot-com Bubble
+
+![](images/svm_senti_sp_eval_dotcom.PNG)
 
 ### SVM with Sentiment during Covid
 
