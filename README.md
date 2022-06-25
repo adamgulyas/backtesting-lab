@@ -101,13 +101,11 @@ Performance during Covid
 
 The following charts show the outperformance when NY Times sentiment signals are added. However, the outperformance isn't consistent throughout different testing periods. During the Covid period, sentiment signals did not improve the performance. This underperformance could be due to the introduction of NLP to the market in the recent past. As more market participants used NLP in their trading, the advantage of one participant over the other dissipated.
 
-Portfolio Performance that includes sentiment signals. Performance for Dotcom period.
-
-### DMAC with Sentiment
+### DMAC with Sentiment during Dot-com Bubble
 
 ![](images/dmac_senti_sp_eval_dotcom.PNG)
 
-### SVM with Sentiment
+### SVM with Sentiment during Dot-com Bubble
 
 ![](images/svm_senti_sp_eval_dotcom.PNG)
 
