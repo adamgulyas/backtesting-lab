@@ -1,6 +1,6 @@
 # Backtesting Lab
 
-For this project, our team created a platform that allows users to generate stock trading algorithms with  Natural Language Processing (NLP), Machine Learning (ML), and technical indicators.
+A platform that allows users to generate stock trading algorithms with  Natural Language Processing (NLP), Machine Learning (ML), and technical indicators.
 
 [Visit Backtesting Lab here](https://adamgulyas-project-2-app-d3jkvd.streamlitapp.com/)
 
