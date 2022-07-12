@@ -8,9 +8,9 @@ For this project, our team created a platform that allows users to generate stoc
 
 ### Environment
 
-Requires an [Anaconda](https://www.anaconda.com/products/distribution) virtual environment running Python >= 3.7.
+Requires a Python >= 3.7 virtual environment.
 
-Activate your Anaconda virtual environment.
+Activate your virtual environment. For example, with Anaconda:
 ```sh
 conda activate <env>
 ```
